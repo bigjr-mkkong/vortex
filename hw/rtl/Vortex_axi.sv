@@ -81,6 +81,14 @@ module Vortex_axi import VX_gpu_pkg::*; #(
 
     // Status
     output wire                         busy
+
+    //TLB interface
+    output wire                             tlb_req_o,
+    input  wire                             tlb_ack_i,
+    input  wire                             tlb_exc_val_i,
+    input  wire ['TLB_SEC_NUM-1  : 0]       tlb_ptw_src_i,
+    output wire ['DCP_VADDR-1    : 0]       tlb_vaddr_o,
+    input  wire ['DCP_PADDR-1    : 0]       tlb_paddr_i
 );
     `STATIC_ASSERT((AXI_DATA_WIDTH == `VX_MEM_DATA_WIDTH), ("invalid memory data size: current=%0d, expected=%0d", AXI_DATA_WIDTH, `VX_MEM_DATA_WIDTH))
     `STATIC_ASSERT((AXI_ADDR_WIDTH >= `MEM_ADDR_WIDTH), ("invalid memory address size: current=%0d, expected=%0d", AXI_ADDR_WIDTH, `VX_MEM_ADDR_WIDTH))
@@ -189,30 +197,66 @@ module Vortex_axi import VX_gpu_pkg::*; #(
 
     `SCOPE_IO_SWITCH (1)
 
-    Vortex vortex (
-        `SCOPE_IO_BIND  (0)
+    /* Vortex vortex ( */
+    /*     `SCOPE_IO_BIND  (0) */
 
-        .clk            (clk),
-        .reset          (reset),
+    /*     .clk            (clk), */
+    /*     .reset          (reset), */
 
-        .mem_req_valid  (mem_req_valid),
-        .mem_req_rw     (mem_req_rw),
-        .mem_req_byteen (mem_req_byteen),
-        .mem_req_addr   (mem_req_addr),
-        .mem_req_data   (mem_req_data),
-        .mem_req_tag    (mem_req_tag),
-        .mem_req_ready  (mem_req_ready),
+    /*     .mem_req_valid  (mem_req_valid), */
+    /*     .mem_req_rw     (mem_req_rw), */
+    /*     .mem_req_byteen (mem_req_byteen), */
+    /*     .mem_req_addr   (mem_req_addr), */
+    /*     .mem_req_data   (mem_req_data), */
+    /*     .mem_req_tag    (mem_req_tag), */
+    /*     .mem_req_ready  (mem_req_ready), */
 
-        .mem_rsp_valid  (mem_rsp_valid),
-        .mem_rsp_data   (mem_rsp_data),
-        .mem_rsp_tag    (mem_rsp_tag),
-        .mem_rsp_ready  (mem_rsp_ready),
+    /*     .mem_rsp_valid  (mem_rsp_valid), */
+    /*     .mem_rsp_data   (mem_rsp_data), */
+    /*     .mem_rsp_tag    (mem_rsp_tag), */
+    /*     .mem_rsp_ready  (mem_rsp_ready), */
 
-        .dcr_wr_valid   (dcr_wr_valid),
-        .dcr_wr_addr    (dcr_wr_addr),
-        .dcr_wr_data    (dcr_wr_data),
+    /*     .dcr_wr_valid   (dcr_wr_valid), */
+    /*     .dcr_wr_addr    (dcr_wr_addr), */
+    /*     .dcr_wr_data    (dcr_wr_data), */
 
-        .busy           (busy)
-    );
+    /*     .busy           (busy) */
+    /* ); */
 
+dcp_vortex_port dcp_vx(
+    // Clock
+    .clk                (clk),
+    .reset              (reset),
+
+    // TLB port
+    .tlb_req_o					            (tlb_req_o),
+    .tlb_ack_i					            (tlb_ack_i),
+    .tlb_exc_val_i					        (tlb_exc_val_i),
+    .tlb_ptw_src_i					        (tlb_ptw_src_i),
+    .tlb_vaddr_o					        (tlb_vaddr_o),
+    .tlb_paddr_i                            (tlb_paddr_i),
+
+    //PMEM req
+    .mem_req_valid_o                        (mem_req_valid),
+    .mem_req_paddr_o                        (mem_req_addr),
+    .mem_req_rw_o                           (mem_req_rw),
+    .mem_req_byteen_o                       (mem_req_byteen),
+    .mem_req_data_o                         (mem_req_data),
+    .mem_req_tag_o                          (mem_req_tag),
+    .mem_req_ready_i                        (mem_req_ready),
+
+    //PMEM rsp
+    .mem_rsp_valid_i                        (mem_rsp_valid),
+    .mem_rsp_data_i                         (mem_rsp_data),
+    .mem_rsp_tag_i                          (mem_rsp_tag),
+    .mem_rsp_ready_o                        (mem_rsp_ready),
+
+    //DCR wires
+    .dcr_wr_valid   (dcr_wr_valid),
+    .dcr_wr_addr    (dcr_wr_addr),
+    .dcr_wr_data    (dcr_wr_data),
+
+    //State
+    .busy                                   (busy)
+);
 endmodule

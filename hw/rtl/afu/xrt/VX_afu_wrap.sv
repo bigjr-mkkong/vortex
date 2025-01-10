@@ -47,6 +47,14 @@ module VX_afu_wrap #(
     output wire [1:0]                           s_axi_ctrl_bresp,
 
     output wire                                 interrupt
+
+    //TLB interface
+    output wire                             tlb_req_o,
+    input  wire                             tlb_ack_i,
+    input  wire                             tlb_exc_val_i,
+    input  wire ['TLB_SEC_NUM-1  : 0]       tlb_ptw_src_i,
+    output wire ['DCP_VADDR-1    : 0]       tlb_vaddr_o,
+    input  wire ['DCP_PADDR-1    : 0]       tlb_paddr_i
 );
 	localparam C_M_AXI_MEM_NUM_BANKS = `M_AXI_MEM_NUM_BANKS;
 
@@ -306,6 +314,14 @@ module VX_afu_wrap #(
 		.dcr_wr_data	(dcr_wr_data),
 
 		.busy			(vx_busy)
+
+        // MMU port
+        .tlb_req_o					            (tlb_req_o),
+        .tlb_ack_i					            (tlb_ack_i),
+        .tlb_exc_val_i					        (tlb_exc_val_i),
+        .tlb_ptw_src_i					        (tlb_ptw_src_i),
+        .tlb_vaddr_o					        (tlb_vaddr_o),
+        .tlb_paddr_i                            (tlb_paddr_i),
 	);
 
     // SCOPE //////////////////////////////////////////////////////////////////////
