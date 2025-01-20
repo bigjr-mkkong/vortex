@@ -50,8 +50,9 @@ module dcp_vortex_port(
 );
     
 typedef enum logic [2:0]{
-    READY = 2'd1,
+    INIT = 2'd1,
     WAITING_TLB = 2'd2,
+    WAITING_RDY = 2'd3,
     DNE = 'X
 }state_e;
 
@@ -89,7 +90,7 @@ typedef enum logic [2:0]{
             vxmem_req_tag_buf <= 0;
             tlbmem_req_addr_buf <= 0;
 
-            state <= READY;
+            state <= INIT;
         end else begin
             vxmem_req_rw_buf        <= save_req	    ?   vxmem_req_rw_o      :vxmem_req_rw_buf; 
             vxmem_req_byteen_buf    <= save_req	    ?   vxmem_req_byteen_o  :vxmem_req_byteen_buf;
@@ -125,14 +126,14 @@ typedef enum logic [2:0]{
         save_req = 0;
         save_paddr = 0;
         case (state) begin
-            READY:
+            INIT:
             begin
                 vxmem_req_ready_i = 1;
                 if(vxmem_req_valid_o) begin
                     save_req = 1;
                     state_next = WAITING_TLB;
                 end else begin
-                    state_next = READY;
+                    state_next = INIT;
                 end
             end
 
@@ -142,7 +143,7 @@ typedef enum logic [2:0]{
                 if(tlb_ack_i) begin
                     mem_req_valid_o = 1;
                     if (mem_req_ready_i) begin
-                        state_next = READY;
+                        state_next = INIT;
                     end else begin
                         save_paddr = 1;
                         state_next = WAITING_RDY;
@@ -156,7 +157,7 @@ typedef enum logic [2:0]{
             begin
                 mem_req_valid_o = 1;
                 if(mem_req_ready_i) begin
-                    state_next = READY;
+                    state_next = INIT;
                 end else begin
                     state_next = WAITING_RDY;
                 end
